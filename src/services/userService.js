@@ -25,7 +25,7 @@ let handleUserLogin = (email, password) => {
                 //user already exit
 
                 let user = await db.User.findOne({
-                    attributes: ['email', 'roleId', 'password'],
+                    attributes: ['email', 'roleId', 'password', 'firstName', 'lastName'],
                     where: { email: email },
                     raw: true
 
@@ -83,7 +83,7 @@ let checkUserEmail = (userEmail) => {
 let getAllUsers = (userId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let users = 'abc';
+            let users = '';
             if (userId === 'ALL') {
                 users = await db.User.findAll({
                     attributes: {
@@ -126,8 +126,10 @@ let createNewUser = (data) => {
                     lastName: data.lastName,
                     address: data.address,
                     phoneNumber: data.phoneNumber,
-                    gender: data.gender === '1' ? true : false,
+                    gender: data.gender,
                     roleId: data.roleId,
+                    positionId: data.positionId,
+                    image: data.avatar
 
                 })
 
@@ -172,7 +174,7 @@ let deleteUser = (userId) => {
 let updateUserData = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!data.id) {
+            if (!data.id || !data.roleId || !data.positionId || !data.gender) {
                 resolve({
                     errCode: 2,
                     errMessage: 'Missing'
@@ -187,10 +189,16 @@ let updateUserData = (data) => {
                 user.firstName = data.firstName;
                 user.lastName = data.lastName;
                 user.address = data.address;
-                await user.save();
-                // await db.User.save({
+                user.roleId = data.roleId;
+                user.positionId = data.positionId;
+                user.gender = data.gender;
+                user.phoneNumber = data.phoneNumber;
+                if (data.avatar) {
+                    user.image = data.avatar;
 
-                // }, {where: { id: userId }})
+                }
+                await user.save();
+
 
 
                 resolve({
